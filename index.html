@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Хто із нас? </title>
+    <title>Хто із нас? 🤪</title>
     <!-- Подключаем веселый мультяшный шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -189,7 +189,7 @@
 </head>
 <body>
 
-    <!-- Звуки (скрытые) -->
+    <!-- Звуки -->
     <audio id="sound-pop" src="click.mp3"></audio>
     <audio id="sound-win" src="win.mp3"></audio>
 
@@ -236,10 +236,9 @@
     <script>
         // ================= НАСТРОЙКИ =================
 
-        // Твоя ссылка (Я УБРАЛ БЛОКИРОВКУ, теперь будет работать)
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcOhsIlJ-DMNMWw7LY4ZpShGlM6jZc91s_e6pd7HFRqbZcJjz621WBPohJ1UEORo4/exec'; 
 
-        // Твои друзья
+        // ИСПРАВЛЕННЫЙ СПИСОК (ДОБАВЛЕНА ЗАПЯТАЯ)
         const friendsData = [
             { name: "Максим", img: "1.jpg" },
             { name: "Ярик", img: "2.jpg" },
@@ -254,11 +253,11 @@
             { name: "Даня", img: "11.jpg" },
             { name: "Нез", img: "12.jpg" },
             { name: "Іван", img: "13.jpg" },
-            { name: "Євсенко", img: "14.jpg" }
+            { name: "Євсенко", img: "14.jpg" }, // <--- ВОТ ТУТ БЫЛА ОШИБКА (Добавил запятую)
             { name: "Технічний", img: "15.jpg" }
         ];
 
-        // Расширенный список вопросов
+        // Твои вопросы
         const questions = [
             "Хто больше всего спіт?",
             "Хто абсолютний лох?",
@@ -283,7 +282,6 @@
         let answers = {}; 
         let userNickname = "Аноним";
 
-        // Ссылки на элементы
         const screenStart = document.getElementById('screen-start');
         const screenGame = document.getElementById('screen-game');
         const screenEnd = document.getElementById('screen-end');
@@ -293,11 +291,9 @@
         const progressEl = document.getElementById('progress');
         const nicknameInput = document.getElementById('nickname-input');
 
-        // Звуки
         const soundPop = document.getElementById('sound-pop');
         const soundWin = document.getElementById('sound-win');
 
-        // Запуск игры
         function startGame() {
             const name = nicknameInput.value.trim();
             if (!name) {
@@ -306,11 +302,9 @@
             }
             userNickname = name;
             
-            // Переключаем экран
             screenStart.classList.remove('active');
             screenGame.classList.add('active');
 
-            // Запускаем музыку (браузеры разрешают звук только после клика)
             soundPop.volume = 0.5;
             soundWin.volume = 0.4;
             
@@ -340,7 +334,6 @@
                 card.appendChild(img);
                 card.appendChild(nameDiv);
 
-                // Клик с задержкой для анимации
                 card.onclick = () => {
                     playPop();
                     handleAnswer(friend.name);
@@ -391,15 +384,13 @@
         }
 
         function playPop() {
-            // Сбрасываем звук на начало, чтобы можно было кликать быстро
             soundPop.currentTime = 0;
-            soundPop.play().catch(e => {}); // Игнорируем ошибки если браузер блокирует
+            soundPop.play().catch(e => {}); 
         }
 
         function sendDataToGoogleSheet() {
-            // Формируем полный пакет данных
             const dataToSend = {
-                nickname: userNickname, // Добавляем имя отвечающего
+                nickname: userNickname, 
                 answers: answers
             };
 
