@@ -3,175 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кто есть кто? 📸</title>
+    <title>Кто из нас? 🤪</title>
+    <!-- Подключаем веселый мультяшный шрифт -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
-
         :root {
-            --primary: #6C63FF;
-            --bg: #1a1a2e;
-            --card-bg: rgba(255, 255, 255, 0.1);
-            --text: #ffffff;
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --bg: #2C3E50;
+            --card-bg: #ecf0f1;
+            --text: #2C3E50;
         }
 
         body {
             margin: 0;
-            padding: 0;
-            font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: var(--text);
+            font-family: 'Nunito', sans-serif; /* Основной текст */
+            background: #2C3E50;
+            background-image: radial-gradient(#34495e 15%, transparent 16%), radial-gradient(#34495e 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            color: white;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        h1, h2, .question-text {
+            font-family: 'Fredoka One', cursive; /* Мультяшный заголовок */
+            letter-spacing: 1px;
         }
 
         .container {
             width: 95%;
-            max-width: 800px;
+            max-width: 850px;
             text-align: center;
-            padding: 10px;
-            padding-bottom: 40px;
+            padding: 20px;
+        }
+
+        /* --- ЭКРАНЫ --- */
+        .screen {
+            display: none; /* Скрываем все экраны по умолчанию */
+            animation: fadeIn 0.5s ease;
+        }
+        .screen.active {
+            display: block; /* Показываем активный */
+        }
+
+        /* Ввод никнейма */
+        .input-card {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 0 rgba(0,0,0,0.2);
+            color: var(--text);
+        }
+        
+        input {
+            padding: 15px;
+            font-size: 1.2rem;
+            border-radius: 15px;
+            border: 3px solid #ddd;
+            width: 80%;
+            margin: 20px 0;
+            outline: none;
+            transition: 0.3s;
+            font-family: 'Nunito', sans-serif;
+            text-align: center;
+        }
+        input:focus {
+            border-color: var(--secondary);
+        }
+
+        .btn-start {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Fredoka One', cursive;
+            box-shadow: 0 6px 0 #c0392b;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .btn-start:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #c0392b;
         }
 
         /* Вопрос */
         .question-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            min-height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: white;
+            color: var(--text);
+            border-radius: 25px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 10;
         }
 
         .question-text {
-            font-size: 1.3rem;
-            font-weight: 700;
-            line-height: 1.4;
+            font-size: 1.6rem;
+            line-height: 1.3;
         }
 
-        /* Сетка с фото */
+        /* Сетка друзей */
         .friends-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4 в ряд на компе */
+            grid-template-columns: repeat(4, 1fr);
             gap: 15px;
+            padding-bottom: 20px;
         }
 
-        /* Карточка друга */
+        /* Карточка друга (Мультяшная) */
         .friend-card {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
+            background: white;
+            border-radius: 20px;
             cursor: pointer;
-            transition: all 0.2s;
+            padding: 8px;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            position: relative;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-bottom: 10px;
-            border: 2px solid transparent;
         }
 
         .friend-card:hover {
-            transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--primary);
+            transform: translateY(-8px) scale(1.05); /* Пружинит вверх */
         }
 
         .friend-card:active {
-            transform: scale(0.95);
+            transform: scale(0.9); /* Сжимается при клике */
+            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
         }
 
         .friend-img {
             width: 100%;
-            aspect-ratio: 1 / 1; /* Делает картинку квадратной */
+            aspect-ratio: 1 / 1;
             object-fit: cover;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            border: 2px solid #eee;
         }
 
         .friend-name {
-            margin-top: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 0 5px;
+            margin-top: 5px;
+            font-weight: 800;
+            color: var(--text);
+            font-size: 0.95rem;
         }
 
         /* Прогресс бар */
-        .progress-container {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 3px;
+        .progress-wrapper {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 5px;
             margin-bottom: 20px;
-            overflow: hidden;
         }
-
-        .progress-bar {
-            height: 100%;
-            background: var(--primary);
+        .progress-fill {
+            height: 12px;
+            background: linear-gradient(90deg, #FF6B6B, #FFD93D);
+            border-radius: 10px;
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.4s ease;
         }
 
-        .hidden { display: none; }
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-        /* Адаптив для телефонов */
-        @media (max-width: 600px) {
+        @media (max-width: 650px) {
             .friends-grid {
-                grid-template-columns: repeat(3, 1fr); /* 3 в ряд на телефоне */
-                gap: 8px;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
             }
-            .friend-name {
-                font-size: 0.75rem;
-            }
-            .question-text {
-                font-size: 1.1rem;
-            }
+            .question-text { font-size: 1.2rem; }
+            .btn-start { font-size: 1.2rem; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container" id="game-screen">
-        <div class="progress-container">
-            <div class="progress-bar" id="progress"></div>
-        </div>
+    <!-- Звуки (скрытые) -->
+    <audio id="sound-pop" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+    <audio id="sound-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
 
-        <div class="question-card">
-            <div class="question-text" id="question">Загрузка...</div>
-        </div>
-
-        <div class="friends-grid" id="friends-container">
-            <!-- Карточки генерируются тут -->
-        </div>
-    </div>
-
-    <div class="container hidden" id="final-screen">
-        <div class="question-card">
-            <div style="padding: 20px;">
-                <h1>Готово! ✨</h1>
-                <p>Ответы улетели.</p>
-                <p>Спасибо за игру!</p>
+    <div class="container">
+        
+        <!-- ЭКРАН 1: Ввод никнейма -->
+        <div id="screen-start" class="screen active">
+            <div class="input-card">
+                <h1>Привет! 👋</h1>
+                <p>Перед началом игры представься:</p>
+                <input type="text" id="nickname-input" placeholder="Твоё имя или кличка" autocomplete="off">
+                <br>
+                <button class="btn-start" onclick="startGame()">ПОГНАЛИ! 🚀</button>
             </div>
         </div>
+
+        <!-- ЭКРАН 2: Игра -->
+        <div id="screen-game" class="screen">
+            <div class="progress-wrapper">
+                <div class="progress-fill" id="progress"></div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-text" id="question">Загрузка...</div>
+            </div>
+
+            <div class="friends-grid" id="friends-container">
+                <!-- Сюда скрипт вставит карточки -->
+            </div>
+        </div>
+
+        <!-- ЭКРАН 3: Финал -->
+        <div id="screen-end" class="screen">
+            <div class="input-card">
+                <h1>Ура! 🎉</h1>
+                <p>Твои ответы улетели в базу.</p>
+                <p>Скоро узнаем всю правду!</p>
+                <div style="font-size: 4rem; margin-top: 20px;">😎</div>
+            </div>
+        </div>
+
     </div>
 
     <script>
         // ================= НАСТРОЙКИ =================
 
-        // 1. ТВОЯ ССЫЛКА НА СКРИПТ (Таблица)
+        // Твоя ссылка (Я УБРАЛ БЛОКИРОВКУ, теперь будет работать)
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcOhsIlJ-DMNMWw7LY4ZpShGlM6jZc91s_e6pd7HFRqbZcJjz621WBPohJ1UEORo4/exec'; 
 
-        // 2. Список друзей. 
-        // ВАЖНО: Порядок имен должен совпадать с номерами картинок!
-        // "Антон" - это 1.jpg
-        // "Маша" - это 2.jpg
-        // и так далее...
+        // Твои друзья
         const friendsData = [
             { name: "Максим", img: "1.jpg" },
             { name: "Ярик", img: "2.jpg" },
@@ -186,34 +254,69 @@
             { name: "Даня", img: "11.jpg" },
             { name: "Нез", img: "12.jpg" },
             { name: "Іван", img: "13.jpg" },
-            { name: "Костя", img: "14.jpg" },
+            { name: "Костя", img: "14.jpg" }
         ];
 
-        // 3. Вопросы
+        // Расширенный список вопросов
         const questions = [
-            "Кто больше всех любит поспать?",
-            "У кого худшие отношения с родителями?",
-            "Кто тайно влюблён в кого-то из компании?",
-            "Кто самый токсичный, но мы его любим?",
-            "Кто первым умрет в фильме ужасов?",
-            "Кто станет миллионером?",
-            "Кто чаще всех опаздывает?",
-            "Кому нельзя доверять секреты?",
-            "Кто выйдет замуж/женится первым?"
+            "Кто больше всех любит поспать? 😴",
+            "У кого худшие отношения с родителями? 😬",
+            "Кто тайно влюблён в кого-то из компании? 💘",
+            "Кто самый токсичный, но мы его любим? ☢️",
+            "Кто первым умрет в фильме ужасов? 🧟‍♂️",
+            "Кто станет миллионером (или сядет в тюрьму)? 💰",
+            "Кто чаще всех опаздывает? ⏰",
+            "Кому нельзя доверять секреты? 🤫",
+            "Кто выйдет замуж/женится первым? 💍",
+            "Кто всегда портит общие фотки? 📸",
+            "Кто больше всех пьёт? 🍺",
+            "Кто, скорее всего, вступит в секту? 🔮",
+            "Кто гуглит сам себя? 🔍",
+            "Кто самый большой подкаблучник? 👠",
+            "Чей смех самый заразительный (или странный)? 😂"
         ];
 
         // ================= ЛОГИКА =================
 
         let currentQuestionIndex = 0;
         let answers = {}; 
+        let userNickname = "Аноним";
 
+        // Ссылки на элементы
+        const screenStart = document.getElementById('screen-start');
+        const screenGame = document.getElementById('screen-game');
+        const screenEnd = document.getElementById('screen-end');
+        
         const questionEl = document.getElementById('question');
         const friendsContainer = document.getElementById('friends-container');
         const progressEl = document.getElementById('progress');
-        const gameScreen = document.getElementById('game-screen');
-        const finalScreen = document.getElementById('final-screen');
+        const nicknameInput = document.getElementById('nickname-input');
 
-        function init() {
+        // Звуки
+        const soundPop = document.getElementById('sound-pop');
+        const soundWin = document.getElementById('sound-win');
+
+        // Запуск игры
+        function startGame() {
+            const name = nicknameInput.value.trim();
+            if (!name) {
+                alert("Эй, введи имя!");
+                return;
+            }
+            userNickname = name;
+            
+            // Переключаем экран
+            screenStart.classList.remove('active');
+            screenGame.classList.add('active');
+
+            // Запускаем музыку (браузеры разрешают звук только после клика)
+            soundPop.volume = 0.5;
+            soundWin.volume = 0.4;
+            
+            initGame();
+        }
+
+        function initGame() {
             renderFriends();
             showQuestion();
         }
@@ -221,18 +324,14 @@
         function renderFriends() {
             friendsContainer.innerHTML = '';
             friendsData.forEach(friend => {
-                // Создаем карточку
                 const card = document.createElement('div');
                 card.className = 'friend-card';
                 
-                // Картинка
                 const img = document.createElement('img');
                 img.src = friend.img; 
                 img.className = 'friend-img';
-                // Если картинка не загрузилась (нет файла), покажем заглушку
-                img.onerror = function() { this.src = 'https://via.placeholder.com/150?text=?'; };
+                img.onerror = function() { this.src = 'https://via.placeholder.com/150?text=' + friend.name[0]; };
 
-                // Имя
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'friend-name';
                 nameDiv.textContent = friend.name;
@@ -240,8 +339,11 @@
                 card.appendChild(img);
                 card.appendChild(nameDiv);
 
-                // Клик
-                card.onclick = () => handleAnswer(friend.name);
+                // Клик с задержкой для анимации
+                card.onclick = () => {
+                    playPop();
+                    handleAnswer(friend.name);
+                };
                 
                 friendsContainer.appendChild(card);
             });
@@ -249,9 +351,13 @@
 
         function showQuestion() {
             questionEl.style.opacity = 0;
+            questionEl.style.transform = "scale(0.9)";
+            
             setTimeout(() => {
                 questionEl.textContent = questions[currentQuestionIndex];
+                questionEl.style.transition = "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
                 questionEl.style.opacity = 1;
+                questionEl.style.transform = "scale(1)";
                 updateProgress();
             }, 200);
         }
@@ -264,6 +370,7 @@
         function handleAnswer(selectedName) {
             const currentQuestion = questions[currentQuestionIndex];
             answers[currentQuestion] = selectedName;
+            
             currentQuestionIndex++;
 
             if (currentQuestionIndex < questions.length) {
@@ -274,22 +381,34 @@
         }
 
         function finishGame() {
-            gameScreen.classList.add('hidden');
-            finalScreen.classList.remove('hidden');
-            sendDataToGoogleSheet(answers);
+            screenGame.classList.remove('active');
+            screenEnd.classList.add('active');
+            
+            soundWin.play().catch(e => console.log('Autoplay blocked'));
+
+            sendDataToGoogleSheet();
         }
 
-        function sendDataToGoogleSheet(data) {
-            if (GOOGLE_SCRIPT_URL.includes('https://script.google.com/macros/s/AKfycbxcOhsIlJ-DMNMWw7LY4ZpShGlM6jZc91s_e6pd7HFRqbZcJjz621WBPohJ1UEORo4/exec')) return;
+        function playPop() {
+            // Сбрасываем звук на начало, чтобы можно было кликать быстро
+            soundPop.currentTime = 0;
+            soundPop.play().catch(e => {}); // Игнорируем ошибки если браузер блокирует
+        }
+
+        function sendDataToGoogleSheet() {
+            // Формируем полный пакет данных
+            const dataToSend = {
+                nickname: userNickname, // Добавляем имя отвечающего
+                answers: answers
+            };
+
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: JSON.stringify(dataToSend)
             });
         }
-
-        init();
     </script>
 </body>
 </html>
