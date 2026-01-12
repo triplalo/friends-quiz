@@ -2,26 +2,31 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Хто із нас? 🤪</title>
-    <!-- Подключаем веселый мультяшный шрифт -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Шрифт -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+    <!-- Библиотека для салюта -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
     <style>
         :root {
             --primary: #FF6B6B;
             --secondary: #4ECDC4;
-            --bg: #2C3E50;
-            --card-bg: #ecf0f1;
-            --text: #2C3E50;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             margin: 0;
-            font-family: 'Nunito', sans-serif; /* Основной текст */
-            background: #2C3E50;
-            background-image: radial-gradient(#34495e 15%, transparent 16%), radial-gradient(#34495e 15%, transparent 16%);
-            background-size: 60px 60px;
-            background-position: 0 0, 30px 30px;
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg-gradient);
             color: white;
             min-height: 100vh;
             display: flex;
@@ -29,56 +34,86 @@
             align-items: center;
             justify-content: center;
             overflow-x: hidden;
-            user-select: none;
+            position: relative;
         }
 
-        h1, h2, .question-text {
-            font-family: 'Fredoka One', cursive; /* Мультяшный заголовок */
-            letter-spacing: 1px;
+        /* Плавающие фигуры на фоне */
+        .background-shapes {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+        .shape:nth-child(1) { width: 80px; height: 80px; top: 10%; left: 10%; animation-duration: 25s; }
+        .shape:nth-child(2) { width: 120px; height: 120px; top: 70%; left: 80%; animation-duration: 30s; }
+        .shape:nth-child(3) { width: 60px; height: 60px; top: 40%; left: 60%; animation-duration: 20s; }
+        .shape:nth-child(4) { width: 100px; height: 100px; top: 80%; left: 20%; animation-duration: 28s; }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
         }
 
         .container {
+            position: relative;
+            z-index: 10;
             width: 95%;
-            max-width: 850px;
+            max-width: 900px;
             text-align: center;
-            padding: 20px;
+            padding: 10px;
+        }
+
+        h1, .question-text {
+            font-family: 'Fredoka One', cursive;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+            letter-spacing: 1px;
         }
 
         /* --- ЭКРАНЫ --- */
         .screen {
-            display: none; /* Скрываем все экраны по умолчанию */
-            animation: fadeIn 0.5s ease;
+            display: none;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .screen.active {
-            display: block; /* Показываем активный */
+        .screen.active { display: block; }
+
+        /* Карточка ввода */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            color: var(--dark);
+            border: 4px solid white;
         }
 
-        /* Ввод никнейма */
-        .input-card {
-            background: white;
-            padding: 40px;
-            border-radius: 30px;
-            box-shadow: 0 10px 0 rgba(0,0,0,0.2);
-            color: var(--text);
-        }
-        
         input {
             padding: 15px;
-            font-size: 1.2rem;
-            border-radius: 15px;
-            border: 3px solid #ddd;
-            width: 80%;
+            font-size: 1.3rem;
+            border-radius: 20px;
+            border: 3px solid #eee;
+            width: 90%;
             margin: 20px 0;
             outline: none;
             transition: 0.3s;
-            font-family: 'Nunito', sans-serif;
             text-align: center;
+            font-family: 'Fredoka One', cursive;
+            background: #f9f9f9;
+            color: var(--dark);
         }
         input:focus {
             border-color: var(--secondary);
+            transform: scale(1.02);
         }
 
-        .btn-start {
+        /* 3D Кнопка */
+        .btn-3d {
             background: var(--primary);
             color: white;
             border: none;
@@ -87,129 +122,147 @@
             border-radius: 50px;
             cursor: pointer;
             font-family: 'Fredoka One', cursive;
-            box-shadow: 0 6px 0 #c0392b;
+            box-shadow: 0 8px 0 #c0392b, 0 15px 20px rgba(0,0,0,0.2);
             transition: transform 0.1s, box-shadow 0.1s;
+            position: relative;
+            top: 0;
         }
-        .btn-start:active {
-            transform: translateY(6px);
-            box-shadow: 0 0 0 #c0392b;
+        .btn-3d:active {
+            top: 8px;
+            box-shadow: 0 0 0 #c0392b, 0 0 0 rgba(0,0,0,0);
         }
 
-        /* Вопрос */
+        /* Карточка вопроса */
         .question-card {
             background: white;
-            color: var(--text);
+            color: var(--dark);
             border-radius: 25px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 0 rgba(0,0,0,0.2);
-            position: relative;
-            z-index: 10;
+            padding: 20px 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 0 rgba(0,0,0,0.1);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        .question-text {
-            font-size: 1.6rem;
-            line-height: 1.3;
-        }
+        .question-text { font-size: 1.5rem; line-height: 1.3; }
 
         /* Сетка друзей */
         .friends-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            padding-bottom: 20px;
+            gap: 12px;
+            padding-bottom: 40px;
         }
 
-        /* Карточка друга (Мультяшная) */
+        /* Карточка друга */
         .friend-card {
             background: white;
             border-radius: 20px;
             cursor: pointer;
-            padding: 8px;
-            box-shadow: 0 6px 0 rgba(0,0,0,0.2);
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            padding: 6px;
+            box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
-            overflow: hidden;
+            top: 0;
         }
 
         .friend-card:hover {
-            transform: translateY(-8px) scale(1.05); /* Пружинит вверх */
+            transform: translateY(-5px) rotate(-2deg);
+            z-index: 2;
         }
 
         .friend-card:active {
-            transform: scale(0.9); /* Сжимается при клике */
-            box-shadow: 0 2px 0 rgba(0,0,0,0.2);
+            top: 6px;
+            box-shadow: 0 0 0 rgba(0,0,0,0);
+            transform: scale(0.95);
         }
 
         .friend-img {
             width: 100%;
             aspect-ratio: 1 / 1;
             object-fit: cover;
-            border-radius: 15px;
-            border: 2px solid #eee;
+            border-radius: 16px;
+            border: 2px solid #f0f0f0;
         }
 
         .friend-name {
             margin-top: 5px;
             font-weight: 800;
-            color: var(--text);
-            font-size: 0.95rem;
+            color: var(--dark);
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        /* Прогресс бар */
-        .progress-wrapper {
-            background: rgba(0,0,0,0.3);
+        /* Прогресс бар (полосатый) */
+        .progress-container {
+            background: rgba(0,0,0,0.2);
             border-radius: 20px;
-            padding: 5px;
+            padding: 4px;
             margin-bottom: 20px;
+            height: 25px;
         }
-        .progress-fill {
-            height: 12px;
-            background: linear-gradient(90deg, #FF6B6B, #FFD93D);
-            border-radius: 10px;
+        .progress-bar {
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                var(--secondary),
+                var(--secondary) 10px,
+                #43babb 10px,
+                #43babb 20px
+            );
+            background-size: 200% 200%;
+            border-radius: 15px;
             width: 0%;
-            transition: width 0.4s ease;
+            transition: width 0.3s ease;
+            animation: stripeMove 1s linear infinite;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* Анимации */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes stripeMove { 100% { background-position: 28px 0; } }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
+        /* Адаптив */
         @media (max-width: 650px) {
-            .friends-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
-            }
+            .friends-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
             .question-text { font-size: 1.2rem; }
-            .btn-start { font-size: 1.2rem; }
+            .btn-3d { padding: 12px 30px; font-size: 1.2rem; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Живой фон -->
+    <div class="background-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
     <!-- Звуки -->
-    <audio id="sound-pop" src="click.mp3"></audio>
-    <audio id="sound-win" src="win.mp3"></audio>
+    <audio id="sound-pop" src="click.mp3" preload="auto"></audio>
+    <audio id="sound-win" src="win.mp3" preload="auto"></audio>
 
     <div class="container">
         
-        <!-- ЭКРАН 1: Ввод никнейма -->
+        <!-- ЭКРАН 1: Вход -->
         <div id="screen-start" class="screen active">
-            <div class="input-card">
-                <h1>Привет! 👋</h1>
-                <p>Перед началом игры представься:</p>
-                <input type="text" id="nickname-input" placeholder="Твоё имя или кличка" autocomplete="off">
+            <div class="glass-card">
+                <h1 style="color: var(--primary); font-size: 2.5rem;">Приветик! 👋</h1>
+                <p style="font-size: 1.1rem; opacity: 0.8;">Введи свое имя, чтобы начать:</p>
+                <input type="text" id="nickname-input" placeholder="Имя / Позывной" autocomplete="off">
                 <br>
-                <button class="btn-start" onclick="startGame()">ПОГНАЛИ! 🚀</button>
+                <button class="btn-3d" onclick="startGame()">ПОГНАЛИ! 🚀</button>
             </div>
         </div>
 
         <!-- ЭКРАН 2: Игра -->
         <div id="screen-game" class="screen">
-            <div class="progress-wrapper">
-                <div class="progress-fill" id="progress"></div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress"></div>
             </div>
 
             <div class="question-card">
@@ -217,17 +270,17 @@
             </div>
 
             <div class="friends-grid" id="friends-container">
-                <!-- Сюда скрипт вставит карточки -->
+                <!-- Карточки -->
             </div>
         </div>
 
         <!-- ЭКРАН 3: Финал -->
         <div id="screen-end" class="screen">
-            <div class="input-card">
-                <h1>Ура! </h1>
-                <p>Твои відповіді улетелі в базу СБУ.</p>
-                <p>ВСЕ БУЛО НЕ АНОНІМНИМ І ВСІ УЗНАЮТ ШО ТИ ВІДПОВІВ!!</p>
-                <div style="font-size: 4rem; margin-top: 20px;">😎</div>
+            <div class="glass-card">
+                <h1 style="color: var(--secondary);">Готово! 🎉</h1>
+                <p>Твои ответы улетели.</p>
+                <p style="font-weight: bold;">Скоро узнаем правду!</p>
+                <div style="font-size: 5rem; margin-top: 20px; animation: popIn 1s infinite alternate;">😎</div>
             </div>
         </div>
 
@@ -238,7 +291,6 @@
 
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcOhsIlJ-DMNMWw7LY4ZpShGlM6jZc91s_e6pd7HFRqbZcJjz621WBPohJ1UEORo4/exec'; 
 
-        // ИСПРАВЛЕННЫЙ СПИСОК (ДОБАВЛЕНА ЗАПЯТАЯ)
         const friendsData = [
             { name: "Максим", img: "1.jpg" },
             { name: "Ярик", img: "2.jpg" },
@@ -253,27 +305,26 @@
             { name: "Даня", img: "11.jpg" },
             { name: "Нез", img: "12.jpg" },
             { name: "Іван", img: "13.jpg" },
-            { name: "Євсенко", img: "14.jpg" }, // <--- ВОТ ТУТ БЫЛА ОШИБКА (Добавил запятую)
-            { name: "Технічний", img: "15.png" }
+            { name: "Євсенко", img: "14.jpg" },
+            { name: "Технічний", img: "15.jpg" }
         ];
 
-        // Твои вопросы
         const questions = [
-            "Хто больше всего спіт?",
-            "Хто абсолютний лох?",
-            "Хто лучший геймер?",
-            "Хто самий токсичній, но ми ево любим? ",
-            "Хто самий активний ",
-            "Хто станет міллионером (или сядет в тюрьму)? ",
-            "Кто чаще всех опаздывает? ",
-            "Кому нельзя доверять секрети? ",
-            "Хто війдет женітся первим? ",
-            "Хто всегда портит вайбік?",
-            "Хто больше всех пьет? ",
-            "Хто шутит хуже всєго",
-            "Хто головний ЧСВ?",
-            "Хто самий большой подкаблучнік? ",
-            "Хто самий гарніший?"
+            "Хто больше всего спіт? 😴",
+            "Хто абсолютний лох? 🤡",
+            "Хто лучший геймер? 🎮",
+            "Хто самий токсичній, но ми ево любим? ☣️",
+            "Хто самий активний? ⚡",
+            "Хто станет міллионером (или сядет в тюрьму)? 💰",
+            "Кто чаще всех опаздывает? 🐢",
+            "Кому нельзя доверять секрети? 🤐",
+            "Хто війдет женітся первим? 💍",
+            "Хто всегда портит вайбік? 😤",
+            "Хто больше всех пьет? 🍺",
+            "Хто шутит хуже всєго? 🦗",
+            "Хто головний ЧСВ? 👑",
+            "Хто самий большой подкаблучнік? 👠",
+            "Хто самий гарніший? 😍"
         ];
 
         // ================= ЛОГИКА =================
@@ -290,21 +341,23 @@
         const friendsContainer = document.getElementById('friends-container');
         const progressEl = document.getElementById('progress');
         const nicknameInput = document.getElementById('nickname-input');
-
         const soundPop = document.getElementById('sound-pop');
         const soundWin = document.getElementById('sound-win');
 
         function startGame() {
             const name = nicknameInput.value.trim();
             if (!name) {
-                alert("Эй, введи имя!");
+                // Тряска поля ввода если нет имени
+                nicknameInput.style.border = "3px solid red";
+                setTimeout(() => nicknameInput.style.border = "3px solid #eee", 500);
                 return;
             }
             userNickname = name;
             
             screenStart.classList.remove('active');
             screenGame.classList.add('active');
-
+            
+            // Пытаемся разблокировать аудио
             soundPop.volume = 0.5;
             soundWin.volume = 0.4;
             
@@ -325,7 +378,7 @@
                 const img = document.createElement('img');
                 img.src = friend.img; 
                 img.className = 'friend-img';
-                img.onerror = function() { this.src = 'https://via.placeholder.com/150?text=' + friend.name[0]; };
+                img.onerror = function() { this.src = 'https://via.placeholder.com/150/FF6B6B/FFFFFF?text=' + friend.name[0]; };
 
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'friend-name';
@@ -336,7 +389,8 @@
 
                 card.onclick = () => {
                     playPop();
-                    handleAnswer(friend.name);
+                    // Небольшая задержка для анимации нажатия
+                    setTimeout(() => handleAnswer(friend.name), 100);
                 };
                 
                 friendsContainer.appendChild(card);
@@ -345,15 +399,15 @@
 
         function showQuestion() {
             questionEl.style.opacity = 0;
-            questionEl.style.transform = "scale(0.9)";
+            questionEl.style.transform = "scale(0.8) translateY(20px)";
             
             setTimeout(() => {
                 questionEl.textContent = questions[currentQuestionIndex];
-                questionEl.style.transition = "all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+                questionEl.style.transition = "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
                 questionEl.style.opacity = 1;
-                questionEl.style.transform = "scale(1)";
+                questionEl.style.transform = "scale(1) translateY(0)";
                 updateProgress();
-            }, 200);
+            }, 150);
         }
 
         function updateProgress() {
@@ -378,9 +432,38 @@
             screenGame.classList.remove('active');
             screenEnd.classList.add('active');
             
-            soundWin.play().catch(e => console.log('Autoplay blocked'));
+            soundWin.play().catch(e => {});
+
+            // ЗАПУСК САЛЮТА!
+            triggerConfetti();
 
             sendDataToGoogleSheet();
+        }
+
+        function triggerConfetti() {
+            const duration = 3000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#FF6B6B', '#4ECDC4', '#FFE66D']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#FF6B6B', '#4ECDC4', '#FFE66D']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
         }
 
         function playPop() {
